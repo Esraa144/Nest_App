@@ -53,7 +53,7 @@ export class VerifyForgotPasswordDto extends EmailDto {
 
 export class ResetForgotPasswordDto extends VerifyForgotPasswordDto {
   @IsStrongPassword({ minUppercase: 1 }) 
-  password: string;
+  newPassword: string;
 }
 
 export class UpdatePasswordDto {

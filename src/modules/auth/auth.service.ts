@@ -218,8 +218,8 @@ export class AuthenticationService {
   }
 
   async resetForgotPassword(data: ResetForgotPasswordDto): Promise<void> {
-    const { email, otp, password } = data;
-
+    const { email, otp, newPassword } = data;
+console.log('Reset Password Data:', { email, otp });
     const user = await this.userRepository.findOne({
       filter: {
         email,
@@ -227,14 +227,13 @@ export class AuthenticationService {
         resetPasswordOtp: { $exists: true },
       },
     });
-
+console.log('User found for reset:', !!user);
     if (!user) {
       throw new NotFoundException(
         'Invalid Account [not registered, invalid provider, or not confirmed]',
       );
     }
 
-    // التحقق من الـ OTP
     if (
       !(await this.securityService.compareHash(
         otp,
@@ -244,8 +243,8 @@ export class AuthenticationService {
       throw new ConflictException('invalid otp');
     }
 
-    const newHashedPassword = await this.securityService.generateHash(password);
-
+    const newHashedPassword = await this.securityService.generateHash(newPassword);
+console.log('Password Hashed Successfully');
     const result = await this.userRepository.updateOne({
       filter: { email },
       update: {
@@ -258,6 +257,7 @@ export class AuthenticationService {
     if (!result.matchedCount) {
       throw new BadRequestException('Fail to reset account password');
     }
+    console.log('User Password Updated');
   }
 
   async updatePassword(userId: string, data: UpdatePasswordDto): Promise<void> {
