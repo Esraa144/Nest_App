@@ -13,3 +13,8 @@ export enum RoleEnum {
   admin = 'admin',
   superAdmin = 'super-admin',
 }
+
+export enum LanguageEnum{
+  AR='AR',
+  EN='EN',
+}

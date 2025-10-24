@@ -75,7 +75,7 @@ export class TokenService {
   getSignatures = async (
     signatureLevel: SignatureLevelEnum = SignatureLevelEnum.Bearer,
   ): Promise<{ access_signature: string; refresh_signature: string }> => {
-    let signatures: { access_signature: string; refresh_signature: string } = {
+    const signatures: { access_signature: string; refresh_signature: string } = {
       access_signature: '',
       refresh_signature: '',
     };

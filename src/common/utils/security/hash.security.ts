@@ -13,3 +13,8 @@ export const compareHash = async (
 ): Promise<boolean> => {
   return await compare(plaintext, hashValue);
 };
+
+
+
+
+

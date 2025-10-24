@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
 import { UserModule } from './modules/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { SharedAuthenticationModule } from './common';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forRoot(process.env.DB_URI as string, {
       serverSelectionTimeoutMS: 30000,
     }),
+    SharedAuthenticationModule,
     AuthenticationModule,
     UserModule,
   ],

@@ -38,6 +38,40 @@ export class SignupBodyDto extends LoginBodyDto {
   confirmPassword: string;
 }
 
+export class EmailDto {
+  @IsEmail()
+  email: string;
+}
+
+export class ForgotPasswordCodeDto extends EmailDto {}
+
+export class VerifyForgotPasswordDto extends EmailDto {
+  @IsNotEmpty()
+  @IsString()
+  otp: string;
+}
+
+export class ResetForgotPasswordDto extends VerifyForgotPasswordDto {
+  @IsStrongPassword({ minUppercase: 1 }) 
+  password: string;
+}
+
+export class UpdatePasswordDto {
+  @IsStrongPassword({ minUppercase: 1 })
+  oldPassword: string;
+
+  @IsStrongPassword({ minUppercase: 1 })
+  newPassword: string;
+
+  @IsStrongPassword({ minUppercase: 1 })
+  confirmPassword: string;
+}
+
+export class GmailAuthDto {
+  @IsNotEmpty()
+  @IsString()
+  idToken: string;
+}
 // export class SignupQueryDto {
 //   @MaxLength(20)
 //   @MinLength(2)

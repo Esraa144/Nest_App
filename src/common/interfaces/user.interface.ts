@@ -4,3 +4,11 @@ export interface IUser {
   password: string;
   id: number;
 }
+
+
+export interface VerifiedGmailPayload {
+  email: string;
+  family_name: string;
+  given_name: string;
+  picture: string;
+}
