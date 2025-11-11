@@ -7,6 +7,8 @@ import {
   Post,
   Req,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthenticationService } from './auth.service';
 import {
@@ -19,9 +21,16 @@ import {
   SignupBodyDto,
   VerifyForgotPasswordDto,
 } from './dto/signup.dto';
-import { LoginCredentialsResponse } from 'src/common';
 import { LoginResponse } from './entities/auth.entity';
+import { IResponse, successResponse } from 'src/common';
 
+
+@UsePipes(
+  new ValidationPipe({
+    whitelist:true,
+    forbidNonWhitelisted:true,
+  }),
+)
 @Controller('auth')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
@@ -30,46 +39,43 @@ export class AuthenticationController {
   async signup(
     @Body()
     body: SignupBodyDto,
-  ): Promise<{
-    message: string;
-  }> {
+  ): Promise<IResponse> {
     console.log({ body });
 
     await this.authenticationService.signup(body);
-    return { message: 'Done' };
+    return successResponse();
   }
 
   @Post('resend-confirm-email')
   async resendConfirmEmail(
     @Body()
     body: ResendConfirmEmailDto,
-  ): Promise<{
-    message: string;
-  }> {
+  ):Promise<IResponse> {
     console.log({ body });
 
     await this.authenticationService.resendConfirmEmail(body);
-    return { message: 'Done' };
+    return successResponse();
   }
 
   @Patch('confirm-email')
   async confirmEmail(
     @Body()
     body: ConfirmEmailDto,
-  ): Promise<{
-    message: string;
-  }> {
+  ): Promise<IResponse> {
     console.log({ body });
 
     await this.authenticationService.confirmEmail(body);
-    return { message: 'Done' };
+    return successResponse();
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: LoginBodyDto): Promise<LoginResponse> {
+  async login(@Body() body: LoginBodyDto): Promise<IResponse<LoginResponse>> {
     const credentials = await this.authenticationService.login(body);
-    return { message: 'Done', data: { credentials } };
+    return successResponse<LoginResponse>({
+       message: 'Done',
+       data: { credentials }
+       });
   }
 
   @Post('forgot-password')

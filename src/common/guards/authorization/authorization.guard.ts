@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { roleName } from 'src/common/decorators/roles.decorators';
 import { RoleEnum } from 'src/common/enums';
 
@@ -16,19 +15,15 @@ export class AuthorizationGuard implements CanActivate {
           context.getHandler()
         ],
       )??[];
-      //console.log({ context, tokenType });
+     
     let  role:RoleEnum=RoleEnum.user
       switch (context.getType()) {
         case 'http':
          role=context.switchToHttp().getRequest().credentials.user.role;
           break;
-        // case 'rpc':
-        //   const rpcCtx = context.switchToRpc();
-  
-        //   break;
-        // case 'ws':
-        //   const wsCtx = context.switchToWs();
-        //   break;
+           case 'http':
+         role=context.switchToWs().getClient().credentials.user.role;
+          break;
         default:
           break;
       }

@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { tokenName } from 'src/common/decorators';
 import { TokenEnum } from 'src/common/enums';
 import { TokenService } from 'src/common/services';
+import { getSocketAuth } from 'src/common/utils/socket';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
@@ -30,11 +31,17 @@ export class AuthenticationGuard implements CanActivate {
       //   const rpcCtx = context.switchToRpc();
 
       //   break;
-      // case 'ws':
-      //   const wsCtx = context.switchToWs();
-      //   break;
+      case 'ws':
+        const wsCtx = context.switchToWs();
+        req=wsCtx.getClient();
+        authorization=getSocketAuth(req);
+        console.log(req);
+  
       default:
         break;
+    }
+    if (!authorization) {
+      return false
     }
 
     const { decoded, user } = await this.tokenService.decodeToken({

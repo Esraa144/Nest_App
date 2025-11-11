@@ -5,9 +5,14 @@ import {
   Virtual,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { GenderEnum, LanguageEnum, ProviderEnum, RoleEnum } from 'src/common/enums';
-import {generateHash} from 'src/common'
-import { HydratedDocument } from 'mongoose';
+import {
+  GenderEnum,
+  LanguageEnum,
+  ProviderEnum,
+  RoleEnum,
+} from 'src/common/enums';
+import { generateHash, IUser } from 'src/common';
+import { HydratedDocument, Types } from 'mongoose';
 import { OtpDocument } from './otp.model';
 @Schema({
   strictQuery: true,
@@ -15,7 +20,7 @@ import { OtpDocument } from './otp.model';
   toObject: { virtuals: true },
   toJSON: { virtuals: true },
 })
-export class User {
+export class User implements IUser {
   @Prop({
     type: String,
     required: true,
@@ -75,7 +80,7 @@ export class User {
   @Prop({ type: String, enum: GenderEnum, default: GenderEnum.male })
   gender: GenderEnum;
 
-    @Prop({ type: String, enum: LanguageEnum, default: LanguageEnum.EN })
+  @Prop({ type: String, enum: LanguageEnum, default: LanguageEnum.EN })
   preferredLanguage: LanguageEnum;
 
   @Prop({ type: String, required: false, default: null })
@@ -83,14 +88,16 @@ export class User {
 
   @Prop({
     type: Date,
-   })
+  })
   changeCredentialsTime: Date;
-
-  // @Prop({ type: Date, default: null })
-  // confirmedAt?: Date;
 
   @Virtual()
   otp: OtpDocument[];
+
+  @Prop({ type: String })
+  profilePicture: string;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Product' }] })
+  wishlist?: Types.ObjectId[];
 }
 
 export type UserDocument = HydratedDocument<User>;
@@ -110,3 +117,5 @@ userSchema.pre('save', async function (next) {
 export const UserModel = MongooseModule.forFeature([
   { name: User.name, schema: userSchema },
 ]);
+
+export const ConnectedSockets = new Map<string, string[]>();

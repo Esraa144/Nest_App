@@ -40,6 +40,10 @@ export default tseslint.config(
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
       '@typescript-eslint/require-await': 'off',
       'no-case-declarations': 'off',
+      'no-unsafe-function-type':'off',
+      '@typescript-eslint/no-unsafe-function-type':'off',
+      'prefer-const': 'off',
+
 
       'prettier/prettier': 'off',
     },

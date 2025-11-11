@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService, JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt';
-import { JwtPayload, sign } from 'jsonwebtoken';
+import { JwtPayload} from 'jsonwebtoken';
 import { RoleEnum, SignatureLevelEnum, TokenEnum } from '../enums';
 import {
   TokenDocument,
@@ -107,7 +107,7 @@ export class TokenService {
     const jwtid = randomUUID();
 
     const access_token = await this.generateToken({
-      payload: { _id: user._id },
+      payload: { sub: user._id },
       options: {
         expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRES_IN),
         jwtid,
@@ -115,7 +115,7 @@ export class TokenService {
       },
     });
     const refresh_token = await this.generateToken({
-      payload: { _id: user._id },
+      payload: { sub: user._id },
       options: {
         expiresIn: Number(process.env.REFRESH_TOKEN_EXPIRES_IN),
         jwtid,

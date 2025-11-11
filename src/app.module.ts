@@ -6,7 +6,14 @@ import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
 import { UserModule } from './modules/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SharedAuthenticationModule } from './common';
+import { S3Service, SharedAuthenticationModule } from './common';
+import { BrandModule } from './modules/brand/brand.module';
+import { CategoryModule } from './modules/category/category.module';
+import { ProductModule } from './modules/product/product.module';
+import { CartModule } from './modules/cart/cart.module';
+import { CouponModule } from './modules/coupon/coupon.module';
+import { OrderModule } from './modules/order/order.module';
+import { RealTimeModule } from './modules/gateway/gateway.module';
 
 @Module({
   imports: [
@@ -20,8 +27,15 @@ import { SharedAuthenticationModule } from './common';
     SharedAuthenticationModule,
     AuthenticationModule,
     UserModule,
+    BrandModule,
+    CategoryModule,
+    ProductModule,
+    CartModule,
+    CouponModule,
+    OrderModule,
+    RealTimeModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, S3Service],
 })
 export class AppModule {}
