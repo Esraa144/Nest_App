@@ -12,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
   Query,
+  Inject,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -31,16 +32,34 @@ import {
   RoleEnum,
   StorageEnum,
   successResponse,
+  TTL,
   User,
 } from 'src/common';
 import { endpoint } from './authorization';
 import type { UserDocument } from 'src/DB';
 import { ProductResponse } from './entities/product.entity';
+import { Cache, CACHE_MANAGER, CacheTTL } from '@nestjs/cache-manager';
+import { type RedisClientType } from '@redis/client';
+import { RedisCacheInterceptor } from 'src/common/interceptor/cache.interceptor';
+import { Observable, of } from 'rxjs';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    @Inject('REDIS_CLIENT') private readonly redisClient: RedisClientType,
+  ) {}
+
+  @Get('test')
+  async test() {
+    let user = JSON.parse((await this.redisClient.get('user')) as string);
+    if (!user) {
+      user = { message: `Done at ${Date.now()}`, name: 'esraa' };
+      await this.redisClient.set('user', JSON.stringify(user), { EX: 1000 });
+    }
+    return user;
+  }
 
   @UseInterceptors(
     FilesInterceptor(
@@ -136,12 +155,14 @@ export class ProductController {
     return successResponse();
   }
 
+  @TTL(50)
+  @UseInterceptors(RedisCacheInterceptor)
   @Get()
   async findAll(
     @Query() query: GetAllDto,
-  ): Promise<IResponse<GetAllResponse<IProduct>>> {
+  ): Promise<Observable<IResponse<GetAllResponse<IProduct>>>> {
     const result = await this.productService.findAll(query);
-    return successResponse<GetAllResponse<IProduct>>({ data: { result } });
+    return of(successResponse<GetAllResponse<IProduct>>({ data: { result } }));
   }
 
   @Auth(endpoint.create)
@@ -170,23 +191,26 @@ export class ProductController {
     return successResponse<ProductResponse>({ data: { product } });
   }
 
- @Auth([RoleEnum.user])
+  @Auth([RoleEnum.user])
   @Patch(':productId/add-to-wishlist')
   async addToWishlist(
-    @User() user:UserDocument,
-    @Param() params:ProductParamDto,
-  ):Promise<IResponse<ProductResponse>>{
-    const product = await this.productService.addToWishlist(params.productId,user)
-    return successResponse<ProductResponse>({data:{product}})
+    @User() user: UserDocument,
+    @Param() params: ProductParamDto,
+  ): Promise<IResponse<ProductResponse>> {
+    const product = await this.productService.addToWishlist(
+      params.productId,
+      user,
+    );
+    return successResponse<ProductResponse>({ data: { product } });
   }
 
   @Auth([RoleEnum.user])
-    @Patch(':productId/remove-from-wishlist')
+  @Patch(':productId/remove-from-wishlist')
   async removeFromWishlist(
-    @User() user:UserDocument,
-    @Param() params:ProductParamDto,
-  ):Promise<IResponse>{
-    await this.productService.removeFromWishlist(params.productId,user)
-    return successResponse()
+    @User() user: UserDocument,
+    @Param() params: ProductParamDto,
+  ): Promise<IResponse> {
+    await this.productService.removeFromWishlist(params.productId, user);
+    return successResponse();
   }
 }
